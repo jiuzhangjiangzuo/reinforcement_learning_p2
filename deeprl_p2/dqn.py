@@ -164,7 +164,25 @@ class DQNAgent:
 		You might want to return the loss and other metrics as an
 		output. They can help you monitor how training is going.
 		"""
-		pass
+
+		# retrive from memory
+		states, actions, rewards, new_states, is_terminals = self.memory.sample(self.batch_size)
+
+		preprocessed_states, preprocessed_new_states = self.preprocessor.process_batch(states, new_states)
+
+		actions = self.preprocessor.process_action(actions)
+		# update network
+		q_values = self.cal_target_q_values(preprocessed_new_states)
+		max_q_values = np.max(q_values, axis=1)
+		max_q_values[is_terminals] = 0.0
+		targets = rewards + self.gamma * max_q_values
+		targets = np.expand_dims(targets, axis=1)
+
+		self.q_network.train_on_batch([preprocessed_states, actions], targets)
+
+		if self.num_steps % self.target_update_freq == 0:
+			print("Update target network at %d steps" % self.num_steps)
+			self.update_target_network()
 
 	def fit(self, env, num_iterations, max_episode_length=None):
 		"""Fit your model to the provided environment.
@@ -191,7 +209,51 @@ class DQNAgent:
 		  How long a single episode should last before the agent
 		  resets. Can help exploration.
 		"""
-		pass
+		print ('initializing replay memory...')
+		sys.stdout.flush()
+		self.mode = 'init'
+		self.memory.clear()
+		self.preprocessor.reset()
+		self.num_steps = 0
+		num_updates = 0
+		num_episodes = 0
+		while num_updates < num_iterations:
+			state = env.reset()
+			self.preprocessor.reset()
+			num_episodes += 1
+			t = 0
+			total_reward = 0
+			#print ('episode start')
+			while True:
+				#env.render()
+				self.num_steps += 1
+				t += 1
+				action, _ = self.select_action(state)
+				next_state, reward, is_terminal, debug_info = env.step(action)
+
+				reward = self.preprocessor.process_reward(reward)
+				total_reward += reward
+
+				preprocessed_state = self.preprocessor.process_state_for_memory(state)
+
+				self.memory.append(preprocessed_state, action, reward, is_terminal)
+
+				if self.num_steps > self.num_burn_in:
+					if self.mode != 'train':
+						print("Finish Burn-in, Start Training!")
+
+					self.mode = 'train'
+					if self.num_steps % self.train_freq == 0:
+						self.update_policy()
+						num_updates += 1
+						if num_updates % 10000 == 0:
+							self.q_network.save_weights('%s/model_weights_%d.h5' % (self.save_path, num_updates // 10000))
+
+				if is_terminal or (max_episode_length is not None and t > max_episode_length):
+					break
+
+				state = next_state
+			print ('episode %d ends, lasts for %d steps (total steps:%d), gets %d reward. (%d/%d updates).' % (num_episodes, t, self.num_steps, total_reward, num_updates, num_iterations))
 
 	def evaluate(self, env, num_episodes, max_episode_length=None):
 		"""Test your agent with a provided environment.
@@ -206,4 +268,28 @@ class DQNAgent:
 		You can also call the render function here if you want to
 		visually inspect your policy.
 		"""
-		pass
+		self.mode = 'test'
+
+		average_episode_length = 0.
+		rewards = []
+
+		for i in range(num_episodes):
+			state = env.reset()
+			t = 0
+			episode_reward = 0.0
+			while True:
+				#env.render()
+				t += 1
+				action, _ = self.select_action(state)
+				next_state, reward, is_terminal, debug_info = env.step(action)
+				#preprocessed_reward = self.preprocessor.process_reward(reward)
+				episode_reward += reward
+				average_episode_length += 1
+
+				if is_terminal or (max_episode_length is not None and t > max_episode_length):
+					break
+				state = next_state
+			rewards.append(episode_reward)
+		self.mode = 'train'
+
+		return np.mean(rewards), np.std(rewards), average_episode_length / num_episodes

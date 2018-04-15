@@ -52,7 +52,41 @@ def create_model(window, input_shape, num_actions,
     keras.models.Model
       The Q-model.
     """
-    return None, None
+    network_model = None
+    if model_name == 'q_network':
+        with tf.name_scope('q_network'):
+            with tf.name_scope('input'):
+                input_state = Input(shape=(window, input_shape[0], input_shape[1]))
+                input_action = Input(shape=(num_actions,))
+
+            with tf.name_scope('conv1'):
+                conv1 = Conv2D(16, (8, 8), data_format='channels_first', kernel_initializer='glorot_uniform', activation='relu', padding='valid', strides=(4, 4))(input_state)
+
+            with tf.name_scope('conv2'):
+                conv2 = Conv2D(32, (4, 4), data_format='channels_first', kernel_initializer='glorot_uniform', activation='relu', padding='valid', strides=(2, 2))(conv1)
+
+            with tf.name_scope('fc'):
+                flattened = Flatten()(conv2)
+                dense1 = Dense(256, kernel_initializer='glorot_uniform', activation='relu')(flattened)
+
+            with tf.name_scope('output'):
+                q_values = Dense(num_actions, kernel_initializer='glorot_uniform', activation=None)(dense1)
+                q_v = dot([q_values, input_action], axes=1)
+
+            network_model = Model(inputs=[input_state, input_action], outputs=q_v)
+            q_values_func = K.function([input_state], [q_values])
+
+        network_model.summary()
+
+    elif model_name == 'double_q_network':
+        pass
+    elif model_name == 'dueling_q_network':
+        pass
+    else:
+        print ('Not implemented')
+        sys.exit(0)
+
+    return network_model, q_values_func
 
 def get_output_folder(parent_dir, env_name):
     """Return save folder.
