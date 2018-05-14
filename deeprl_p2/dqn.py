@@ -149,8 +149,8 @@ class DQNAgent:
 		return self.policy[self.mode].select_action(q_values), preprocessed_state
 
 
-	def update_policy(self):
-		"""Update your policy.
+	def update_predict_network(self):
+		"""Update your predict network.
 
 		Behavior may differ based on what stage of training your
 		in. If you're in training mode then you should check if you
@@ -244,7 +244,7 @@ class DQNAgent:
 
 					self.mode = 'train'
 					if self.num_steps % self.train_freq == 0:
-						self.update_policy()
+						self.update_predict_network()
 						num_updates += 1
 						if num_updates % 10000 == 0:
 							self.q_network.save_weights('%s/model_weights_%d.h5' % (self.save_path, num_updates // 10000))
