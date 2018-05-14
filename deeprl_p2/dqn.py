@@ -149,8 +149,8 @@ class DQNAgent:
 		return self.policy[self.mode].select_action(q_values), preprocessed_state
 
 
-	def update_policy(self):
-		"""Update your policy.
+	def update_predict_network(self):
+		"""Update your predict network.
 
 		Behavior may differ based on what stage of training your
 		in. If you're in training mode then you should check if you
