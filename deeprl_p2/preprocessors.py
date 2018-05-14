@@ -46,6 +46,15 @@ class AtariPreprocessor(Preprocessor):
     def __init__(self, new_size):
         self.scale = new_size
 
+    def crop_image(self, image, new_height, new_width):
+        width, height = image.size
+        left = (width - new_width)/2
+        top = (height - new_height)/2
+        right = (width + new_width)/2
+        bottom = (height + new_height)/2
+
+        return image.crop((left, top, right, bottom))
+
     def process_state_for_memory(self, state):
         """Scale, convert to greyscale and store as uint8.
 
@@ -61,7 +70,11 @@ class AtariPreprocessor(Preprocessor):
         """
         state = Image.fromarray(state, 'RGB')
         state = state.convert(mode='L')
-        state = state.resize(self.scale)
+        short_side = min(state.width, state.height)
+        long_side = max(state.width, state.height)
+        long_scale = int(long_side * float(self.scale[0]) / short_side)
+        state = state.resize((self.scale[0], long_scale))
+        state = self.crop_image(state, self.scale[0], self.scale[1])
         state = np.asarray(state)
 
         return state
@@ -75,7 +88,11 @@ class AtariPreprocessor(Preprocessor):
 
         state = Image.fromarray(state, 'RGB')
         state = state.convert(mode='F')
-        state = state.resize(self.scale)
+        short_side = min(state.width, state.height)
+        long_side = max(state.width, state.height)
+        long_scale = int(long_side * float(self.scale[0]) / short_side)
+        state = state.resize((self.scale[0], long_scale))
+        state = self.crop_image(state, self.scale[0], self.scale[1])
         state = np.asarray(state) / 255.
 
         return state
