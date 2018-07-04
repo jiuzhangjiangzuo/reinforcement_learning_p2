@@ -65,7 +65,7 @@ class AtariPreprocessor(Preprocessor):
         We recommend using the Python Image Library (PIL) to do the
         image conversions.
 
-        Huiting: the API of PIL is below:
+        the API of PIL is below:
         https://pillow.readthedocs.io/en/4.0.x/reference/Image.html
         """
         state = Image.fromarray(state, 'RGB')
