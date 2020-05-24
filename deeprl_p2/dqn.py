@@ -1,7 +1,8 @@
 import numpy as np
 import sys
-import keras.models
-import keras.backend as K
+from tensorflow import keras
+import tensorflow.keras.models
+import tensorflow.keras.backend as K
 from deeprl_p2.utils import *
 from PIL import Image
 
@@ -21,7 +22,7 @@ class DQNAgent:
 
 	Parameters
 	----------
-	q_network: keras.models.Model
+	q_network: tensorflow.keras.models.Model
 	  Your Q-network model.
 	preprocessor: deeprl_p2.core.Preprocessor
 	  The preprocessor class. See the associated classes for more
@@ -61,7 +62,7 @@ class DQNAgent:
 
 		self.q_network = q_network
 
-		self.target_network = keras.models.clone_model(q_network)
+		self.target_network = tensorflow.keras.models.clone_model(q_network)
 		self.target_network.set_weights(q_network.get_weights())
 		self.target_q_values_func = K.function([self.target_network.layers[0].input], [self.target_network.layers[5].output])
 
@@ -84,7 +85,7 @@ class DQNAgent:
 		"""Setup all of the TF graph variables/ops.
 
 		This is inspired by the compile method on the
-		keras.models.Model class.
+		tensorflow.keras.models.Model class.
 
 		This is a good place to create the target network, setup your
 		loss function and any placeholders you might need.

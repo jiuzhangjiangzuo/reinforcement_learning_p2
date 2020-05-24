@@ -269,7 +269,9 @@ class PreprocessorSequence(Preprocessor):
             self.history[0:self.history_length-1] = self.history[1:self.history_length]
             self.history[self.history_length-1] = state
 
-        return np.expand_dims(np.asarray(self.history), 0)
+        ret = np.expand_dims(np.asarray(self.history), 0)
+        ret = np.transpose(ret, (0, 2, 3, 1))
+        return ret
 
     def process_batch(self, states, new_states):
         return self.atari.process_batch(states, new_states)

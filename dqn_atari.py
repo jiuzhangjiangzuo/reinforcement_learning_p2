@@ -10,11 +10,12 @@ from gym import wrappers
 
 import numpy as np
 import tensorflow as tf
-from keras.layers import (Activation, Conv2D, Dense, Flatten, Input)
-from keras.layers.merge import dot
-from keras.models import Model
-from keras.optimizers import Adam
-import keras.backend as K
+from tensorflow import keras
+from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, Input)
+from tensorflow.keras.layers import dot
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+import tensorflow.keras.backend as K
 
 import deeprl_p2 as tfrl
 from deeprl_p2.dqn import DQNAgent
