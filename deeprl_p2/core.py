@@ -99,7 +99,7 @@ class ReplayMemory:
             return None, None, None, None, None
         else:
             count = 0
-            if self.end > self.start:
+            if not self.full:
                 count = self.end - self.start
             else:
                 count = self.max_size
