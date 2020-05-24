@@ -1,8 +1,7 @@
 attrs
 gym
 h5py
-keras
-tensorflow
+tensorflow=2.2.0
 matplotlib
 numpy
 pillow

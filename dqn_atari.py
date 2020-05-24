@@ -10,11 +10,12 @@ from gym import wrappers
 
 import numpy as np
 import tensorflow as tf
-from keras.layers import (Activation, Conv2D, Dense, Flatten, Input)
-from keras.layers.merge import dot
-from keras.models import Model
-from keras.optimizers import Adam
-import keras.backend as K
+from tensorflow import keras
+from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, Input)
+from tensorflow.keras.layers import dot
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+import tensorflow.keras.backend as K
 
 import deeprl_p2 as tfrl
 from deeprl_p2.dqn import DQNAgent
@@ -56,14 +57,14 @@ def create_model(window, input_shape, num_actions,
     if model_name == 'q_network':
         with tf.name_scope('q_network'):
             with tf.name_scope('input'):
-                input_state = Input(shape=(window, input_shape[0], input_shape[1]))
+                input_state = Input(shape=(input_shape[0], input_shape[1], window)) 
                 input_action = Input(shape=(num_actions,))
 
             with tf.name_scope('conv1'):
-                conv1 = Conv2D(16, (8, 8), data_format='channels_first', kernel_initializer='glorot_uniform', activation='relu', padding='valid', strides=(4, 4))(input_state)
+                conv1 = Conv2D(16, (8, 8), data_format='channels_last', kernel_initializer='glorot_uniform', activation='relu', padding='valid', strides=(4, 4))(input_state)
 
             with tf.name_scope('conv2'):
-                conv2 = Conv2D(32, (4, 4), data_format='channels_first', kernel_initializer='glorot_uniform', activation='relu', padding='valid', strides=(2, 2))(conv1)
+                conv2 = Conv2D(32, (4, 4), data_format='channels_last', kernel_initializer='glorot_uniform', activation='relu', padding='valid', strides=(2, 2))(conv1)
 
             with tf.name_scope('fc'):
                 flattened = Flatten()(conv2)

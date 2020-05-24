@@ -1,6 +1,6 @@
 """Loss functions."""
-
-import keras.backend as K
+from tensorflow import keras
+import tensorflow.keras.backend as K
 import semver
 
 
