@@ -57,7 +57,7 @@ def create_model(window, input_shape, num_actions,
     if model_name == 'q_network':
         with tf.name_scope('q_network'):
             with tf.name_scope('input'):
-                input_state = Input(shape=(input_shape[0], input_shape[1], window)) 
+                input_state = Input(shape=(input_shape[0], input_shape[1], window))
                 input_action = Input(shape=(num_actions,))
 
             with tf.name_scope('conv1'):
@@ -139,7 +139,7 @@ def train(args):
     memory = ReplayMemory(args.memsize, args.stack_frames)
     policy = {
                 'init':    UniformRandomPolicy(num_actions),
-                'train':   GreedyEpsilonPolicy(num_actions),
+                'train':   LinearDecayGreedyEpsilonPolicy(num_actions),
                 'test':    GreedyPolicy(),
     }
 

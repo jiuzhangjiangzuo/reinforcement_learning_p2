@@ -165,6 +165,7 @@ class LinearDecayGreedyEpsilonPolicy(Policy):
         assert self.num_actions == q_values.shape[1]
 
         epsilon = self.start_value + (self.steps / self.num_steps) * (self.end_value - self.start_value)
+
         if self.steps < self.num_steps:
             self.steps += 1.0
 
